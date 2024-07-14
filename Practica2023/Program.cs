@@ -11,26 +11,38 @@ namespace Practica2024
     {
         static void Main()
         {
+            //подключение для добавления контактов
             SQLiteConnection connection = new SQLiteConnection("Data Source = ПрактикаБД.db;version=3");
-            SQLiteConnection readConnection = new SQLiteConnection("Data Source = ПрактикаБД.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
+            //команда для SQLite
             SQLiteCommand cmd;
-            
+
 
             string commandNumber;
             bool flag = true;
             while (flag)
             {
-                
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine("~~ГЛАВНЫЙ ЭКРАН~~");
+                Console.ResetColor();
+
+                //показ всех доступных команд
                 Commands();
 
                 commandNumber = Console.ReadLine();
 
                 switch (commandNumber)
                 {
+
+                    //case для добавления контакта
                     case "1":
 
                         Console.Clear();
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        Console.WriteLine("~~ДОБАВЛЕНИЕ КОНТАКТА~~");
+                        Console.ResetColor();
                         bool flagFirstCase = true;
+
                         while (flagFirstCase)
                         {
                             Console.WriteLine();
@@ -38,7 +50,7 @@ namespace Practica2024
                             string correctName = NameEnter();
                             string correctSurname = SurnameEnter();
                             string correctNumber = "+7" + NumberEnter();
-                            string query = "INSERT INTO Контакты (Имя, Фамилия, Телефон) VALUES ('" + correctName + "','" + correctSurname + "','" + correctNumber + "')";
+                            string query = $"INSERT INTO Контакты (Имя, Фамилия, Телефон) VALUES ({correctName},{correctSurname},{correctNumber})";
 
                             connection.Open();
                             cmd = new SQLiteCommand(query, connection);
@@ -55,47 +67,78 @@ namespace Practica2024
                         }
                         break;
 
+                    //case для отображения всех номеров
                     case "2":
+                        Console.Clear();
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        Console.WriteLine("~~ПРОСМОТР ВСЕХ КОНТАКТОВ~~");
+                        Console.ResetColor();
                         Console.WriteLine();
-                        
+
                         ShowContacts();
 
-                        bool deleteNumberFlag = true;
-                        while (deleteNumberFlag) {
-                        Console.WriteLine("Желаете удалить контакт?");
-                        switch(Console.ReadLine().ToLower())
+                        /*bool deleteNumberFlag = true;
+                        while (deleteNumberFlag)
                         {
-                            case "да":
-                                Console.WriteLine();
-                                Console.Write("Введите номер контакта который хотите удалить: ");
-                                string deleteThisNumber = Console.ReadLine();
+                            Console.WriteLine("Желаете удалить контакт?");
+                            switch (Console.ReadLine().ToLower())
+                            {
+                                case "да":
+                                    Console.WriteLine();
+                                    Console.Write("Введите номер контакта который хотите удалить: ");
+                                    string deleteThisNumber = Console.ReadLine();
 
-                                readConnection.Open();
-                                string deleteQuery = $"DELETE FROM Контакты WHERE ID = {deleteThisNumber}";
-                                SQLiteCommand cmdDelete = new SQLiteCommand(deleteQuery, readConnection);
+                                    readConnection.Open();
+                                    string deleteQuery = $"DELETE FROM Контакты WHERE ID = {deleteThisNumber}";
+                                    SQLiteCommand cmdDelete = new SQLiteCommand(deleteQuery, readConnection);
+                                    cmdDelete.ExecuteNonQuery();
+                                    readConnection.Close();
 
-                                readConnection.Close();
+                                    break;
 
-                                break;
-
-                            case "нет":
+                                case "нет":
                                     Console.Clear();
                                     deleteNumberFlag = false;
-                                break;
+                                    break;
 
-                            default:
-                                Console.WriteLine("Были введены неверные символы");
-                                break;
+                                default:
+                                    Console.WriteLine("Были введены неверные символы");
+                                    break;
 
-                        }
-                        }
-                        
-                        Console.WriteLine();
+                            }
+                        }*/
+                        Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                        Console.Write("Нажмите любую кнопку чтобы очистить консоль и вернуться на главный экран");
+                        Console.ResetColor();
+                        Console.ReadKey();
 
                         break;
 
-
+                    //case поиска по номеру телефона
                     case "3":
+                        bool searchFlag = true;
+                        while (searchFlag)
+                        {
+                            Console.Clear();
+                            Console.ForegroundColor = ConsoleColor.DarkGreen;
+                            Console.WriteLine("~~ПОИСК ПО НОМЕРУ ТЕЛЕФОНА~~");
+                            Console.ResetColor();
+                            Console.WriteLine();
+                            Console.Write("Введите цифры номера: ");
+
+                            SearchContacts();
+
+                            searchFlag = false;
+
+                            Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                            Console.Write("Нажмите любую кнопку чтобы очистить консоль и вернуться на главный экран");
+                            Console.ResetColor();
+                            Console.ReadKey();
+                        }
+                        break;
+
+                    //case для завершения программы
+                    case "4":
                         Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.WriteLine("\nЗавершение программы");
                         Console.ResetColor();
@@ -106,25 +149,30 @@ namespace Practica2024
                         Console.Clear();
                         Console.ForegroundColor = ConsoleColor.DarkMagenta;
                         Console.WriteLine("Такой команды не существует, попробуйте еще раз\n");
-                        
+                        Console.Write("Нажмите любую кнопку чтобы очистить консоль и вернуться на главный экран");
                         Console.ResetColor();
+                        Console.ReadKey();
                         break;
                 }
             }
 
         }
 
+        //функция вывода доступных команд
         private static void Commands()
         {
 
             Console.WriteLine("1 - Добавить контакт");
-            Console.WriteLine("2 - Просмотр всех имеющихся контактов и удаление выбранного");
-            Console.WriteLine("3 - Выход из приложения\n");
+            Console.WriteLine("2 - Просмотр всех имеющихся контактов");
+            Console.WriteLine("3 - Поиск контакта");
+            Console.WriteLine("4 - Выход из приложения\n");
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write("Выберите необходимое действие: ");
             Console.ResetColor();
         }
+
+        //функция для ввода имени
         private static string NameEnter()
         {
             bool flagName = true;
@@ -169,6 +217,7 @@ namespace Practica2024
 
         }
 
+        //функция для ввода фамилии
         private static string SurnameEnter()
         {
             bool flagSurname = true;
@@ -177,7 +226,6 @@ namespace Practica2024
 
             while (flagSurname)
             {
-
                 Console.Write("Введите фамилию или '-' если хотите оставить контакт без фамилии: ");
                 surname = Console.ReadLine();
 
@@ -211,6 +259,7 @@ namespace Practica2024
             return "";
         }
 
+        //функция для ввода номера
         private static string NumberEnter()
         {
             bool flagNumber = true;
@@ -250,6 +299,7 @@ namespace Practica2024
             return "";
         }
 
+        //функция отображения всех контактов 
         static void ShowContacts()
         {
             SQLiteConnection readConnection = new SQLiteConnection("Data Source = ПрактикаБД.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
@@ -268,15 +318,73 @@ namespace Practica2024
                 contactsData[contactsData.Count - 1][0] = reader[1].ToString();
                 contactsData[contactsData.Count - 1][1] = reader[2].ToString();
                 contactsData[contactsData.Count - 1][2] = reader[3].ToString();
-
             }
 
             for (int i = 0; i < contactsData.Count; i++)
+            {
                 Console.WriteLine(i + 1 + ") " + contactsData[i][0] + " " + contactsData[i][1] + " \nНомер: " + contactsData[i][2] + "\n");
+            }
 
             reader.Close();
             readConnection.Close();
         }
 
+        //функция поиска контакта по цифрам из номера телефона
+        static void SearchContacts()
+        {
+            string search = Console.ReadLine();
+
+            if (search.Length == 0 || search.Length > 10)
+            {
+                Console.WriteLine("Введено недопустимое количество символов");
+            }
+            else
+            {
+                SQLiteConnection readConnection = new SQLiteConnection("Data Source = ПрактикаБД.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
+                SQLiteCommand cmdRead;
+                string readQuery = "SELECT * FROM Контакты ORDER BY ID";
+                cmdRead = new SQLiteCommand(readQuery, readConnection);
+
+                readConnection.Open();
+                SQLiteDataReader reader = cmdRead.ExecuteReader();
+
+                List<string[]> contactsData = new List<string[]>();
+
+                while (reader.Read())
+                {
+                    if (reader[3].ToString().Contains(search))
+                    {
+
+                        contactsData.Add(new string[3]);
+                        contactsData[contactsData.Count - 1][0] = reader[1].ToString();
+                        contactsData[contactsData.Count - 1][1] = reader[2].ToString();
+                        contactsData[contactsData.Count - 1][2] = reader[3].ToString();
+                    }
+
+                }
+                Console.WriteLine();
+                if (contactsData.Count == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Номера не были найдены...");
+                    Console.ResetColor();
+                    Console.WriteLine();
+                }
+                else
+                {
+
+                    for (int i = 0; i < contactsData.Count; i++)
+                    {
+
+                        Console.WriteLine(i + 1 + ") " + contactsData[i][0] + " " + contactsData[i][1] + " \nНомер: " + contactsData[i][2] + "\n");
+                    }
+                }
+
+
+
+                reader.Close();
+                readConnection.Close();
+            }
+        }
     }
 }
