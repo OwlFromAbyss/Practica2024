@@ -12,7 +12,7 @@ namespace Practica2024
         static void Main()
         {
             //подключение для добавления контактов
-            SQLiteConnection connection = new SQLiteConnection("Data Source = ПрактикаБД.db;version=3");
+            SQLiteConnection connection = new SQLiteConnection("Data Source = Practica2024DB.db;version=3");
             //команда для SQLite
             SQLiteCommand cmd;
 
@@ -50,19 +50,25 @@ namespace Practica2024
                             string correctName = NameEnter();
                             string correctSurname = SurnameEnter();
                             string correctNumber = "+7" + NumberEnter();
-                            string query = $"INSERT INTO Контакты (Имя, Фамилия, Телефон) VALUES ({correctName},{correctSurname},{correctNumber})";
+                            //команда для базы данных
+                            string query = $"INSERT INTO Contacts (FirstName, LastName, Number) VALUES ('"+ correctName +"','"+ correctSurname +"','"+ correctNumber +"')";
 
+                            //создание соединения с базой данных
                             connection.Open();
+                            //исполнение команды к БД
                             cmd = new SQLiteCommand(query, connection);
                             cmd.ExecuteNonQuery();
+                            //Закрытие соединения
                             connection.Close();
+
                             flagFirstCase = false;
 
-                            Console.Clear();
-
+                            Console.WriteLine();
                             Console.ForegroundColor = ConsoleColor.DarkGreen;
-                            Console.WriteLine("Контакт был успешно записан");
+                            Console.Write("Контакт был успешно записан\nНажмите любую кнопку для продолжения...");
                             Console.ResetColor();
+                            Console.ReadKey();
+                            Console.Clear();
                             Console.WriteLine();
                         }
                         break;
@@ -108,7 +114,7 @@ namespace Practica2024
                             }
                         }*/
                         Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                        Console.Write("Нажмите любую кнопку чтобы очистить консоль и вернуться на главный экран");
+                        Console.Write("Нажмите любую кнопку чтобы очистить консоль и вернуться на главный экран...");
                         Console.ResetColor();
                         Console.ReadKey();
 
@@ -131,7 +137,7 @@ namespace Practica2024
                             searchFlag = false;
 
                             Console.ForegroundColor = ConsoleColor.DarkMagenta;
-                            Console.Write("Нажмите любую кнопку чтобы очистить консоль и вернуться на главный экран");
+                            Console.Write("Нажмите любую кнопку чтобы очистить консоль и вернуться на главный экран...");
                             Console.ResetColor();
                             Console.ReadKey();
                         }
@@ -273,7 +279,7 @@ namespace Practica2024
                 if (number.Length != 10)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Неправильное количество цифр, попробуйте еще раз");
+                    Console.WriteLine("Неправильное количество символов, попробуйте еще раз");
                     Console.ResetColor();
                 }
                 else
@@ -302,16 +308,26 @@ namespace Practica2024
         //функция отображения всех контактов 
         static void ShowContacts()
         {
-            SQLiteConnection readConnection = new SQLiteConnection("Data Source = ПрактикаБД.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
+            //строка подключения к БД
+            SQLiteConnection readConnection = new SQLiteConnection("Data Source = Practica2024DB.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
+            //экземпляр класс, представляющий собой применение команды к БД
             SQLiteCommand cmdRead;
-            string readQuery = "SELECT * FROM Контакты ORDER BY ID";
+
+            //команды к БД
+            string readQuery = "SELECT * FROM Contacts ORDER BY ID";
+            //выполнение команды
             cmdRead = new SQLiteCommand(readQuery, readConnection);
 
+            //открытие соединения к БД
             readConnection.Open();
+
+            //экземпляр класса, который считывает данные из БД
             SQLiteDataReader reader = cmdRead.ExecuteReader();
 
+            //список куда запишутся имя, фамилия, номер человека
             List<string[]> contactsData = new List<string[]>();
 
+            //добавление строк в список, пока считываются данные из БД
             while (reader.Read())
             {
                 contactsData.Add(new string[3]);
@@ -320,11 +336,12 @@ namespace Practica2024
                 contactsData[contactsData.Count - 1][2] = reader[3].ToString();
             }
 
+            //вывод контактов в консоль
             for (int i = 0; i < contactsData.Count; i++)
             {
                 Console.WriteLine(i + 1 + ") " + contactsData[i][0] + " " + contactsData[i][1] + " \nНомер: " + contactsData[i][2] + "\n");
             }
-
+            //закрытие ридера и соединения с БД
             reader.Close();
             readConnection.Close();
         }
@@ -334,15 +351,19 @@ namespace Practica2024
         {
             string search = Console.ReadLine();
 
+            //если не было введено цифр номера или было введено слишком много
             if (search.Length == 0 || search.Length > 10)
             {
                 Console.WriteLine("Введено недопустимое количество символов");
             }
             else
             {
-                SQLiteConnection readConnection = new SQLiteConnection("Data Source = ПрактикаБД.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
+                //подключение к БД
+                SQLiteConnection readConnection = new SQLiteConnection("Data Source = Practica2024DB.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
                 SQLiteCommand cmdRead;
-                string readQuery = "SELECT * FROM Контакты ORDER BY ID";
+
+                //выбор всего в таблице в порядке ID
+                string readQuery = "SELECT * FROM Contacts ORDER BY ID";
                 cmdRead = new SQLiteCommand(readQuery, readConnection);
 
                 readConnection.Open();
@@ -352,31 +373,35 @@ namespace Practica2024
 
                 while (reader.Read())
                 {
+                    //контакты будут добавлены в список только если содержат введенные пользователем цифры
                     if (reader[3].ToString().Contains(search))
                     {
 
-                        contactsData.Add(new string[3]);
-                        contactsData[contactsData.Count - 1][0] = reader[1].ToString();
-                        contactsData[contactsData.Count - 1][1] = reader[2].ToString();
-                        contactsData[contactsData.Count - 1][2] = reader[3].ToString();
+                        contactsData.Add(new string[4]);
+                        contactsData[contactsData.Count - 1][0] = reader[0].ToString();
+                        contactsData[contactsData.Count - 1][1] = reader[1].ToString();
+                        contactsData[contactsData.Count - 1][2] = reader[2].ToString();
+                        contactsData[contactsData.Count - 1][3] = reader[3].ToString();
                     }
 
                 }
                 Console.WriteLine();
+                //если контакты не были найдены
                 if (contactsData.Count == 0)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Номера не были найдены...");
+                    Console.WriteLine("Контакт(-ы) не были найдены...");
                     Console.ResetColor();
                     Console.WriteLine();
                 }
+                //иначе выводятся контакты
                 else
                 {
 
                     for (int i = 0; i < contactsData.Count; i++)
                     {
 
-                        Console.WriteLine(i + 1 + ") " + contactsData[i][0] + " " + contactsData[i][1] + " \nНомер: " + contactsData[i][2] + "\n");
+                        Console.WriteLine("ID контакта - " + contactsData[i][0] + ") " + contactsData[i][1] + " " + contactsData[i][2] + " \nНомер: " + contactsData[i][3] + "\n");
                     }
                 }
 
