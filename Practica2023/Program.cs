@@ -431,14 +431,17 @@ namespace Practica2024
             SQLiteConnection readConnection = new SQLiteConnection("Data Source = Practica2024DB.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
 
             string changeContactData;
+
             bool changeDataFlag = true;
             bool changeContactFlag = true;
             bool newNameIsNotNull = true;
+
             string word;
 
 
             while (changeDataFlag)
             {
+
                 Console.Write("Желаете изменить данные контакта? (да/нет): ");
                 readConnection.Open();
 
@@ -520,7 +523,7 @@ namespace Practica2024
                                         Console.ResetColor();
                                         Console.WriteLine();
                                         changeContactFlag = false;
-                                        changeDataFlag = false;
+                                        
                                         break;
 
                                     default:
@@ -563,8 +566,8 @@ namespace Practica2024
         private static void DeleteContact()
         {
             SQLiteConnection readConnection = new SQLiteConnection("Data Source = Practica2024DB.db;AttachDbFilename=|DataDirectory|\\ПрактикаБД.db;version=3");
-            bool deleteDataFlag = true;
 
+            bool deleteDataFlag = true;
             while (deleteDataFlag)
             {
 
